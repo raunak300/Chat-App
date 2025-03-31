@@ -1,0 +1,1110 @@
+1.Phase
+based on=> "https://www.youtube.com/watch?v=W3sOezpkGWI"
+did create 2 folders frontend(client) and backend
+
+2.working with Client or frontend based on react
+
+2.a) for components i am using "shadcn" 
+as it have various components codes that can be used
+"https://ui.shadcn.com/docs/installation/vite"
+
+b) did as given in documentation of shadcn
+
+c)instead of tsconfig we need to make jsconfig file
+with content
+
+{
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "@/*": ["./src/*"]  
+      }
+    }
+}
+
+^ need to be written in jsconfig.json
+
+d)updating the vite.config.js 
+we need to not download as given in step 3 of documetation 
+just need to update the code that also include
+v4 of tailwind css 
+
+e)in our React file
+\Chat-App\client>npx shadcn@latest init
+we did run this command to make it work
+
+npx shadcn@latest init
+
+and 
+
+the thing that occur during time for refrence
+
+-----------------------
+
+Need to install the following packages:
+shadcn@2.4.0-canary.17
+Ok to proceed? (y) y
+
+√ Preflight checks.
+√ Verifying framework. Found Vite.
+√ Validating Tailwind CSS config. Found v4.
+√ Validating import alias.
+√ Which color would you like to use as the base color? » Slate
+√ Writing components.json.
+√ Checking registry.
+√ Updating src\index.css
+  Installing dependencies.
+
+It looks like you are using React 19.
+Some packages may fail to install due to peer dependency issues in npm (see https://ui.shadcn.com/react-19).
+
+√ How would you like to proceed? » Use --force
+√ Installing dependencies.
+√ Created 1 file:
+  - src\lib\utils.js
+
+Success! Project initialization completed.
+You may now add components.
+
+-----------------------
+
+f) now we need to add components that requires us to download
+
+for example adding button components we can do
+npx shadcn@latest add button
+The command above will add the Button component to project
+
+to add this button we can do
+--------------------
+import { Button } from "@/components/ui/button"
+
+function App() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-svh">
+      <Button>Click me</Button>
+    </div>
+  )
+}
+
+export default App
+
+--------------------
+
+soo we are odne with component set up 
+
+3.
+now we will do the dom working of react
+for routing
+
+we need to install the dom library react
+
+npm i react-router-dom ==for routing
+
+then in src of client(frontend folder)
+we created a folder=pages 
+this iwll carry various pages in our App
+
+in folder pages we will create more pages like
+a)auth
+b)chat
+c)profile
+
+
+a) b) c)
+in auth,chat,profile we did created 
+1.index.jsx this will look like this
+
+//import react line is removed btw
+
+const Chat = () => {  //Auth and Profile  if in that folder 
+  return (
+    <div>Chat</div>
+  )
+}
+
+export default Chat
+
+
+-------
+why use react-router-dom
+
+If we create various components it will cause reloading the pages to move
+like anchor tag having a link on hom/about will reload every time
+
+import {
+    createBrowserRouter
+} from 'react-router-dom'
+
+to immport things we can simply write them in form of array that reduces time and load on our website
+
+App.jsx this is our main 
+
+----
+App.jsx
+----
+import {useState} from 'react
+import './App.css'
+import React from 'react'
+import Navbar from './components/Navbar'
+import Home from './components/Home'
+import {createBrowserRouter,RouterProvider} from 'react-router-dom'
+
+//^above is what we imported
+
+function App(){
+    const router= createBrowserRouter([
+        {
+            //this will carry 2 things
+            path: "/", //on "/" this route got to Home component
+            element: <Home />
+        },
+        {
+            path:"/login",
+            element: <Login />
+
+        }
+    ])
+
+
+    return (
+        <>
+        <Navbar />
+        <RouterProvider router={router}/>
+        //this is to fit in provided path like nav have in acnhor= "/" it will just get fit in that position
+        // still our issue is not pravialed that is of refresh
+        //hence in our 'anchor tag' will be replaced by "Link tag"
+        //this will update the issue
+        </>
+    )
+}
+
+export default App
+
+------
+------
+
+
+so based on above concept we got this
+
+-----
+import React from "react"
+import { Button } from "@/components/ui/button"
+import { BrowserRouter ,Route ,Routes,Navigate } from "react-router-dom"
+import Auth from "./pages/auth"
+ 
+function App() {
+  return (
+    <BrowserRouter>
+
+      <Routes>
+         
+        <Route path="/auth" element = {<Auth />} />
+        <Route path="*" element={<Navigate to="/auth" />} />
+        // on /auth it will navigate to auth component
+        //else on any other route it will go back to /auth
+      </Routes>
+
+    </BrowserRouter>
+  )
+} 
+
+export default App
+--------
+
+
+-----
+next concept that will be applied is react.lazy to lazy load the 
+(lazy load) is important
+
+as it stops and does not loads all the components causing 
+better user interface response as website is not loded up with things
+
+code-splitting(docs)
+
+terms used
+
+1)lazy load 
+const home=react.lazy(()=> import("components/home"))
+
+this is to lazy load the component
+but while loading there must be somthing
+
+2)suspense
+
+imported from react and just applied to boundry of 
+of this component as
+
+import {Suspense} from "react"
+const Home=react.lazy(()=> import("components/home"))
+
+<Suspense fallback={<div>loading...<div/>}>
+    <Home />
+<suspense/>
+
+
+so this is how we do the suspense thing while our component is loading
+
+3) this is boundry condition what if our react app can't get loaded up
+go visit 
+
+npm react-error-boundary
+that is a simple reusable error boundary component
+
+install via terminal 
+then create a js file as "errorBoundary.js"
+
+copy first 9 lines from documentation that need to be written 
+
+this code to be precise
+--------------------------
+import { ErrorBoundary } from "react-error-boundary";
+
+function Fallback({ error, resetErrorBoundary }) {
+  // Call resetErrorBoundary() to reset the error boundary and retry the render.
+
+  return (
+    <div role="alert">
+      <p>Something went wrong:</p>
+      <pre style={{ color: "red" }}>{error.message}</pre>
+    </div>
+  );
+}
+
+export default Fallback;
+--------------------------
+
+this also require resetting the error as well which will be covered in the project part
+
+
+^ this concept will be applied at later stages until then creation of components will be done in place
+------
+
+so currently we are focusing on developing 
+
+(1) Auth.jsx
+
+import React from "react"
+
+const Auth = () => {
+  return (
+    <div className='h-[100vh] w-100vh flex items-center justify-center'>
+      <div className="h-[80vh] bg-white border-r border-white text-opacity-90 shadow-2xl w-[80vw] md:w-[90vw] lg:w-[70vw] xl:w-[60vw] rounded-3xl xl-grid-cols-2">
+        <div className="flex flex-col gap-10 items-center justify-center">
+          <div className="flex flex-col gap-10 items-center justify-center">
+            <div className="flex items-center justify-center ">
+              <h1 className="text-5xl font-bold md:text-6xl ">
+                Welcome
+              </h1>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default Auth
+
+
+
+this is basic layout and billing of other components from shad cdn will be used in here 
+input-button-tabs from shad cdn
+
+and getting some assets from the video 
+and these are some images that will be used
+
+there is a
+image file
+lottie-json->for the animation
+victory.svg->emoji sort of thing
+
+this code is for auth.json
+things to understand
+1.use of onClick
+2.use of evennts
+3.usestates
+4.tabs.tablist, tabstrigger, tabs,content
+
+-------
+import React, { useState } from "react"
+import Background from "../../assets/login2.png"
+import Victory from "../../assets/victory.svg"
+import { Tabs, TabsList, TabsContent, TabsTrigger } from "@radix-ui/react-tabs"
+import { Button } from "../../components/ui/button"
+
+const Auth = () => {
+  const [email, setemail] = useState("");
+  const [password, setpassword] = useState("");
+  const [confirmPassword, setconfirmPassword] = useState("")
+
+  const handelLogin = async () => {
+
+  }
+  const handelSignup = async () => {
+
+  }
+
+  return (
+    <div className='h-[100vh] w-[100vw] flex items-center justify-center'>
+      <div className="h-[80vh] bg-white border-2 border-white text-opacity-90 shadow-2xl w-[80vw]md:w-[90vw] lg:w-[70vw] xl:w-[60vw] rounded-3xl xl:grid-cols-2">
+        <div className="flex flex-col gap-10 items-center justify-center">
+          <div className="flex flex-col  items-center justify-center">
+            <div className="flex items-center justify-center ">
+              <h1 className="text-5xl font-bold md:text-6xl ">
+                Welcome
+              </h1>
+              <img src={Victory} alt="Victory Emoji" className="h-[100px]   " />
+            </div>
+            <p className="font-medium text-center">
+              Fill in Details to start with the best Chat App
+            </p>
+          </div>
+          <div className="flex items-center justify-center w-full">
+            <Tabs className="w-3/4 ">
+              <TabsList className="bg-transparent rounded-none w-full  ">
+                <TabsTrigger value="login"
+                  className="data-[state=active]:bg-transparent text-black text-opacity-98 border-b-2 rounded-none w-1/2 data-[state=active]:font-semibold data-[state=active]:border-b-purple-500 p-3 transition-all duration-300">
+                  Login
+                </TabsTrigger>
+                <TabsTrigger value="signup"
+                  className="data-[state=active]:bg-transparent text-black text-opacity-98 border-b-2 rounded-none 
+                  w-1/2 data-[state=active]:font-semibold data-[state=active]:border-b-purple-500 p-3 transition-all duration-300">
+                  SignUP
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent className="flex flex-col gap-5 mt-10" value="login">
+                <input type="email" placeholder="email" value={email}
+                  className="rounded-md p-6 "
+                  onChange={(e) => {
+                    setemail(e.target.value)
+                  }} />
+                <input type="password" placeholder="password" value={password}
+                  className="rounded-md p-6 "
+                  onChange={(e) => {
+                    setpassword(e.target.value)
+                  }} />
+                <Button className="rounded-md p-6 bg-zinc-900 text-white" onClick={handelLogin}>Login</Button>
+
+              </TabsContent>
+              <TabsContent className="flex flex-col gap-5 mt-10" value="signup">
+                <input type="email" placeholder="email" value={email}
+                  className="rounded-md p-6 "
+                  onChange={(e) => {
+                    setemail(e.target.value)
+                  }} />
+
+                <input type="password" placeholder="password" value={password}
+                  className="rounded-md p-6 "
+                  onChange={(e) => {
+                    setpassword(e.target.value)
+                  }} />
+
+                <input type="password" placeholder="confirm password" value={confirmPassword}
+                  className="rounded-md p-6 "
+                  onChange={(e) => {
+                    setconfirmPassword(e.target.value)
+                  }} />
+
+                <Button className="rounded-md p-6 bg-zinc-900 text-white" onClick={handelSignup}>Sign UP</Button>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+        <div className="hidden xl:flex  justify-center items-center">
+          {/* <img src={Background} alt="background image" className="h-[700px]" /> */}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default Auth 
+-------
+
+tabs (or <Tabs> component): This is the top-level container component for the entire tabs interface. It manages the state and overall structure of the tabs. Think of it as the "binder" holding everything together. It often provides context and logic for coordinating the triggers and content.
+
+tabslist (or <TabsList> component): This component specifically renders the list of tab buttons or labels. It's the visual row of clickable items that allow users to navigate between the different content sections. It usually handles the visual layout of these triggers.
+
+tabs trigger (or <TabsTrigger> component): These are the individual clickable buttons or labels within the tabslist. Each trigger is associated with a specific content panel. When a user interacts with a tabs trigger, it signals the tabs component to display the corresponding content.
+
+tabs content (or <TabsContent> component): These components represent the individual content panels that are displayed when their associated tabs trigger is active. Only one tabs content is typically visible at a time. The tabs component manages which tabs content is currently shown.
+
+--------
+
+
+now we will start working on the backend part
+
+1)npm init
+2) downloaded some packages (can be seen in packege.json)
+3)changed type from commonjs to module
+4) needed nodemon in dev-environment so to do that
+ npm i nodemon --save-dev
+
+--------
+this is how package.json looks
+
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.13.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
+
+-----------
+
+
+setting up backend 
+
+at first we will require imp things
+
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import mongoose from 'mongoose';
+
+we have written import since in package.json we did change it to module rather than commonjs
+
+const app=express();
+
+dotenv.config();
+
+
+require and did config dotenv to get the message from there
+
+const port=process.env.PORT||8000;
+const databaseURL=process.env.DATABASE_URL;
+
+for url that exist in dotenv
+
+
+app.listen(port,()=>{
+    console.log(`listening on port ${port}`);
+})
+mongoose
+    .connect(databaseURL)
+    .then(()=>{
+        console.log("connected to DB")}
+    ).catch((err)=>{
+        console.log(err.message);
+    })
+
+connected mongoose and listening on server
+
+mongoose connection is supported with 
+.connect = to connect
+.then =after connection we will do this
+.catch = this will catch the error in there
+
+--------------
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import mongoose from 'mongoose';
+const app=express();
+
+dotenv.config();
+
+const port=process.env.PORT||8000;
+const databaseURL=process.env.DATABASE_URL;
+
+
+
+
+
+app.listen(port,()=>{
+    console.log(`listening on port ${port}`);
+})
+mongoose
+    .connect(databaseURL)
+    .then(()=>{
+        console.log("connected to DB")}
+    ).catch((err)=>{
+        console.log(err.message);
+    })
+
+--------------
+
+CORS=used for secure communication between 
+hosted frontend and backend
+
+
+app.use(cors({
+    origin:[process.env.ORIGIN],
+    methods:["GET","POST","PUT","PATCH","DELETE"],
+    credentials:true
+}));
+
+
+origin from where u will be getting the connection(frontend -react(5173))
+or
+origin:[process.env.ORIGIN]: This is like saying, "I will only allow visitors coming from these specific addresses."
+
+CORS is like the set of rules you put in place to decide who you let in and what they're allowed to do.
+
+methods:["GET","POST","PUT","PATCH","DELETE"]: This is like saying, "These are the only actions visitors are allowed to perform."
+
+credentials:true: This is like saying, "I will allow visitors to bring their identification (like cookies or login information) with them."
+
+did included some predefined middlewares
+app.use(cookieParser());
+app.use(express.json())
+app.use(express.urlencoded({required:true}))
+
+so basic code looks like this
+
+-----------------
+//most important thing is maintaning the hierarchy in
+
+
+import express, { urlencoded } from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import mongoose from 'mongoose';
+const app=express();
+
+dotenv.config();
+
+const port=process.env.PORT||8000;
+const databaseURL=process.env.DATABASE_URL;
+
+app.use(cors({
+    origin:[process.env.ORIGIN],
+    methods:["GET","POST","PUT","PATCH","DELETE"],
+    credentials:true
+}));
+
+app.use(cookieParser());
+app.use(express.json())
+app.use(express.urlencoded({required:true}))
+
+
+app.listen(port,()=>{
+    console.log(`listening on port ${port}`);
+})
+mongoose
+    .connect(databaseURL)
+    .then(()=>{
+        console.log("connected to DB")}
+    ).catch((err)=>{
+        console.log(err.message);
+    })
+
+
+
+-----------------
+
+we are going to work on basis of MVC(model view arch
+
+
+there are folders to maintain (mvc)
+1)controllers
+2)middlewares
+3)models
+4)Routes
+
+-------------
+
+
+next stage is working on authentication part
+
+first we will create a UserModel DB
+
+that is store in model
+
+---------------
+import mongoose, { Mongoose } from 'mongoose';
+import {genSalt,hash} from 'bcrypt';
+
+const userSchema=new mongoose.Schema({
+    email:{
+        type:String,
+        required:[true,"Email is required"],
+        unique:true
+    },
+    password:{
+        type:String,
+        required:[true,"password is required"],
+    },
+    firstName:{
+        type:String,
+        required:false,
+    },
+    lastName:{
+        type:String,
+        required:false,
+    },
+    color:{
+        type:Number,
+        required:false,
+    },
+    profileSetup:{
+        type:Boolean,
+        default:false,
+    },
+}) 
+
+userSchema.pre("save",async function(next){
+    const salt=await genSalt();
+    this.password=await hash(this.password,salt);
+    next();
+})
+
+const User=mongoose.Model("Users",userSchema)
+
+
+export default User
+---------------
+
+userSchema.pre("save")
+this will do some task before storing to the DB
+
+we did use bcrypt to store password by generating salt and hashing it
+
+--
+next we will be working with Authcontroller.js to work on signup control thing
+
+import User from "../models/UserModel";
+
+
+export const signup=async function(req,res,next){
+    try{
+        const {email,password}=req.body;
+        if(!email || !password){
+            return res.status(400).send("email and password are required");
+        }
+        const user=await User.create({email,password});
+        
+
+    }catch(err){
+        console.log({err});
+        return res.status(500).send("Internal server Error");
+    }
+
+}
+
+as u can see we did created a auth page that creates a user if signup is done sucessfully and called User from models to send data there
+
+now we want to have jwt tokens and give it 2 things
+user id and email for verification of user
+
+
+----
+import {sign} from "jsonwebtoken"
+
+const maxAge=3*24*60*60*1000;
+
+const createToken=(email,userId)=>{
+    return sign({email,userId},process.env.JWT_KEY,{expiresIn:maxAge})
+}
+ this is what we did in SuthController.js
+
+ and this is meaning of what we did
+
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config();
+
+// Assume you have a user object after successful authentication
+const user = {
+  id: 123,
+  username: 'exampleUser',
+  email: 'user@example.com'
+};
+
+const secretKey = process.env.JWT_SECRET; // Store securely in .env
+const expirationTime = '1h'; // Token expires in 1 hour
+
+const token = jwt.sign(user, secretKey, { expiresIn: expirationTime });
+
+console.log(token); // This is your JWT
+
+^ based on above concept
+const createToken = (email, userId) => {
+  // Function to create a JWT
+  return sign({ email, userId }, process.env.JWT_KEY, { expiresIn: maxAge });
+  // 'sign' takes a payload (email and userId), a secret key from environment variables,
+  // and options (setting the expiration time) to generate a JWT.
+};
+
+----
+
+
+while
+
+res.cookie("jwt", createToken(email, user.id), {
+      // Setting a JWT as an HTTP-only cookie in the response
+      maxAge, // Setting the maximum age of the cookie to match the JWT expiration
+      secure: true, // Ensuring the cookie is only sent over HTTPS in production
+      sameSite: "None", // Allowing cross-origin requests to include the cookie (requires careful CORS setup)
+    });
+
+return response.status(200).json({
+      // Returning a successful (200 OK) response with user information
+      user: {
+        id: user.id, // Sending the user's ID
+        email: user.email, // Sending the user's email
+        profileSetup: user.profileSetup, // Sending the user's profile setup status
+      },
+    });
+
+while whole code looks like this
+
+
+--------------
+import { response } from "express";
+import User from "../models/UserModel";
+import {sign} from "jsonwebtoken"
+
+const maxAge=3*24*60*60*1000;
+
+const createToken=(email,userId)=>{
+    return sign({email,userId},process.env.JWT_KEY,{expiresIn:maxAge})
+}
+
+export const signup=async function(req,res,next){
+    try{
+        const {email,password}=req.body;
+        if(!email || !password){
+            return res.status(400).send("email and password are required");
+        }
+        const user=await User.create({email,password});
+        res.cookie("jwt",createToken(email,user.id),{
+            maxAge,
+            secure:true,
+            sameSite:"None"
+        });
+        return response.status(200).json({
+            user:{
+                id:user.id,
+                email:user.email,
+                profileSetup:user.profileSetup,
+            }
+        })
+
+    }catch(err){
+        console.log({err});
+        return res.status(500).send("Internal server Error");
+    }
+
+}
+
+--------------
+
+next thing we have to do is setting up routes for authentication
+
+
+import {Router} from "express";
+import { signup } from "../controllers/AuthController";
+
+const authRoutes=Router();
+
+authRoutes.post("/signup",signup)
+
+export default authRoutes;
+
+
+this is how our authRoutes.js looks like
+
+and in index.js
+app.use('/api/auth',authRoutes) this is added
+
+
+so there is some changes in code to alter the issues in our code
+
+in index.js
+import authRoutes from './routes/AuthRoutes.js';
+
+we need to add js at import for each file
+
+import jwt from "jsonwebtoken"
+const {sign}=jwt;
+can't get sign directly hence this in controllers
+
+
+no we need to ga back to react app and
+do npm i axios that supports routing
+
+till now our code for signup looks like this
+
+
+-----------------
+index.js
+
+import express, { urlencoded } from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import mongoose from 'mongoose';
+import authRoutes from './routes/AuthRoutes.js';
+const app=express();
+
+dotenv.config();
+
+const port=process.env.PORT||8000;
+const databaseURL=process.env.DATABASE_URL;
+
+app.use(cors({
+    origin:[process.env.ORIGIN],
+    methods:["GET","POST","PUT","PATCH","DELETE"],
+    credentials:true
+}));
+
+app.use(cookieParser());
+app.use(express.json())
+app.use(express.urlencoded({extended:true,required:true}))
+
+
+app.use('/api/auth',authRoutes)
+
+app.listen(port,()=>{
+    console.log(`listening on port ${port}`);
+})
+mongoose
+    .connect(databaseURL)
+    .then(()=>{
+        console.log("connected to DB")}
+    ).catch((err)=>{
+        console.log(err.message);
+    })
+
+
+
+for AuthRole.js
+
+
+import {Router} from "express";
+import { signup } from "../controllers/AuthController.js";
+
+const authRoutes=Router();
+
+authRoutes.post("/signup",signup)
+
+export default authRoutes;
+
+
+
+for authcontroller.js
+
+
+import { response } from "express";
+import User from "../models/UserModel.js";
+import jwt from "jsonwebtoken"
+const {sign}=jwt;
+
+const maxAge=3*24*60*60*1000;
+
+const createToken=(email,userId)=>{
+    return sign({email,userId},process.env.JWT_KEY,{expiresIn:maxAge})
+}
+
+export const signup=async function(req,res,next){
+    try{
+        const {email,password}=req.body;
+        if(!email || !password){
+            return res.status(400).send("email and password are required");
+        }
+        const user=await User.create({email,password});
+        res.cookie("jwt",createToken(email,user.id),{
+            maxAge,
+            secure:true,
+            sameSite:"None"
+        });
+        return response.status(200).json({
+            user:{
+                id:user.id,
+                email:user.email,
+                profileSetup:user.profileSetup,
+            }
+        })
+
+    }catch(err){
+        console.log({err});
+        return res.status(500).send("Internal server Error");
+    }
+
+}
+
+
+
+
+
+UserModel
+
+
+import mongoose, { Mongoose } from 'mongoose';
+import {genSalt,hash} from 'bcrypt';
+
+const userSchema=new mongoose.Schema({
+    email:{
+        type:String,
+        required:[true,"Email is required"],
+        unique:true
+    },
+    password:{
+        type:String,
+        required:[true,"password is required"],
+    },
+    firstName:{
+        type:String,
+        required:false,
+    },
+    lastName:{
+        type:String,
+        required:false,
+    },
+    color:{
+        type:Number,
+        required:false,
+    },
+    profileSetup:{
+        type:Boolean,
+        default:false,
+    },
+}) 
+
+userSchema.pre("save",async function(next){
+    const salt=await genSalt();
+    this.password=await hash(this.password,salt);
+    next();
+})
+
+const User=mongoose.model("Users",userSchema)
+
+
+export default User
+--------------------------
+
+
+inside our client app 
+did npm i axios
+
+in src->lib->created aip-client.js
+and
+in src->new folder utils
+
+utils->constants.js
+
+Let's say you frequently need to format dates in your React application. Instead of writing the formatting logic in each component, you can create a utility function:
+
+hence utils function are used to make a reusable code
+written in src/utils
+
+
+-------------
+axios -working for fetching data(fetch api)
+
+ Axios is a popular, promise-based HTTP client for making API requests from your browser (for the frontend) and Node.js (for the backend). In the context of React, it's the go-to library for fetching data from external APIs and sending data to them
+
+
+uses promises to  handel http(req and res)
+to send and receive data
+
+axios main work->updating content,submit,fetch,receive info w/o reloading the page
+
+axios.METHOD('URL', [data], [config])
+  .then(response => {
+    // Handle the successful response here
+    console.log('Success:', response.data);
+  })
+  .catch(error => {
+    // Handle errors here
+    console.error('Error:', error);
+  })
+  .finally(() => {
+    // Optional: Code to run regardless of success or failure (e.g., hide loading spinner)
+  });
+
+METHOD: This is the HTTP verb you want to use (e.g., get, post, put, delete).
+URL: The endpoint of the API you want to interact with.
+[data]: (Optional) The data you want to send in the request body (typically for POST, PUT, PATCH requests). This is usually an object.
+[config]: (Optional) An object containing request configurations like headers, timeouts, etc
+-------------
+
+
+
+then we did make 
+constants.js
+Centralize API endpoint definitions: Instead of hardcoding URLs throughout the application, these constants provide a single source of truth.
+--
+export const HOST=import.meta.env.VITE_SERVER_URL;
+
+export const AUTH_ROUTES="api/auth";
+export const SIGNUP_ROUTE=`${AUTH_ROUTES}/signup`
+--
+
+
+so at this point we are working on few things
+1.index.js for auth means login and signup is in use
+2.we need to add sooner(shadcdn) in main.jsx
+3.created routes for api thing in constants.js
+4..env file exist that carry server path
+5. axios is working on routes that require login and signup first will be connecting to it
+
+so firstly working on adding sooner
+it will send a message that email must be there like that if during signup there is no email added
+
+
+firstly download the sooner from shadcn
+
+then call it in main.jsx to address it as written in documentation
+
+then in index.js for authentication applied that as
+
+
+const validateSignup=()=>{
+    if(!email.length){
+      toast.error("Email is required");
+      return false;
+    }
+    return true;
+  }
+
+
+  const handelLogin = async () => {
+
+  };
+  const handelSignup = async () => {
+    if(validateSignup()){
+      alert("done");
+    }
+  };
+
+so i am getting done alert on doing it and 
+sooner msg on not writing email
+
+------------------------------------ in api-client.js
+const apiClient = axios.create({ ... });:
+
+This line uses the axios.create() method to create a new Axios instance. This is a common practice to configure specific settings for your API interactions without affecting the default Axios behavior.
+-----------------------------------
+
+
+
+
+
+
+
+
+
