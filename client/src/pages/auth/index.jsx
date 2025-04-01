@@ -38,7 +38,7 @@ const Auth = () => {
   };
   const handelSignup = async () => {
     if(validateSignup()){
-      const response=await apiClient.post(SIGNUP_ROUTE,{email,password});
+      const response=await apiClient.post(SIGNUP_ROUTE,{email,password}); //going on backend
       console.log(response);
     }
   };

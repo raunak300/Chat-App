@@ -1,5 +1,4 @@
 import React from "react"
-import { Button } from "@/components/ui/button"
 import { BrowserRouter ,Route ,Routes,Navigate } from "react-router-dom"
 import Auth from "./pages/auth"
 import Profile from "./pages/profile"
