@@ -1105,12 +1105,275 @@ for understanding relation till now check this
 
 "https://docs.google.com/document/d/14nEv0P0SasGPnbFXPHBHnJWKPFvttfYjpROY-DUoXB8/edit?usp=sharing"
 
+now what next we have to do is work on login part of the page
+
+in authcontroller.js
+
+we did create
+login that will be user 
+
+xport const login=async function(req,res,next) {
+    try {
+        const {email,password}=req.body;
+        if(!email || !password){
+            return res.status(400).send("email and password are required");
+        }
+        const user=User.findOne({
+            email:email,
+        })
+        if(!user){
+            console.log("no user exist");
+            res.status(400).send("email or password is incorrect");
+        }
+        const auth=await bcrypt.compare(password,user.password);
+        if(!auth){
+            return res.status(400).send("email or password is incorrect")
+        }
+        res.cookie("jwt",createToken(email,user.id),{
+            maxAge,
+            secure:true,
+            sameSite:"None"
+        });
+        return res.status(200).json({
+            user:{
+                id:user.id,
+                email:user.email,
+                profileSetup:user.profileSetup,
+                firstName:user.firstName,
+                lastName:user.lastName,
+                image:user.image,
+                color:user.color
+            }
+        })
+
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send("Internal Server Error");
+    }
+}
+
+
+this is code and 
+as we login
+a)user is found by email
+b)password is compared using bcrypt
+c)if a user is found then json format passes this time all data
+
+return res.status(200).json({
+            user:{
+                id:user.id,
+                email:user.email,
+                profileSetup:user.profileSetup,
+                firstName:user.firstName,
+                lastName:user.lastName,
+                image:user.image,
+                color:user.color
+            }
+        })
+
+
+so we did work on authcontroller and made login
+now authRoutes have a post route
+as 
+
+import { signup,login } from "../controllers/AuthController.js";
+authRoutes.post("/login",login);
+
+so now in constants of client need to have a route login from backend and get that on frontend
+
+export const LOGIN_ROUTE=`${AUTH_ROUTES}/login`
+
+and got this on frontend of auth.js
+
+as
+
+
+  const validateLogin=()=>{
+    if(!email.length){
+      toast.error("Email is required");
+      return false;
+    }
+    if(!password.length){
+      toast.error("Password is required");
+      return false;
+    }
+    return true; 
+  }
+
+
+  const handelLogin = async () => {
+    if(validateLogin()){
+      const response=await apiClient.post(LOGIN_ROUTE,{email,password},{withCredentials:true}); //going on backend and withcridentials to make token
+      console.log(response);
+    }
+
+as a user login what we want is he set up his profile
+like other things 
+if profileSetup is false we need to do that
+if profile setup is true we need to send it to chat page
+
+
+so in index.jsx of auth.js
+
+  const handelLogin = async () => {
+    if(validateLogin()){
+      const response=await apiClient.post(LOGIN_ROUTE,{email,password},{withCredentials:true}); //going on backend and withcridentials to make token
+      console.log(response);
+    
+    if(response.data.user.profileSetup){
+      navigate("/chat");
+    }
+    else{
+      navigate("/profile")
+    }
+  }
+
+  and signup as
+
+    const handelSignup = async () => {
+    if(validateSignup()){
+      const response=await apiClient.post(SIGNUP_ROUTE,{email,password},{withCredentials:true}); //going on backend and withcridentials to make token
+      console.log(response);
+      //as i do signup i get jwt token now
+    
+    if(response.status===201){
+      navigate("/profile");
+    }
+    }
+  };
+
+
+and const navigate=useNavigate(); where 
+import { useNavigate } from "react-router-dom";
+
+
+//zutand   download
+
+Zustand is a small, fast, and scalable state management library for React applications. It provides a simple API for managing global state without the boilerplate often associated with other state management solutions like Redux. 
+
+we need to create a folder in src
+store folder is created 
+
+(You start by creating a "store," which is like a container for your state. This store holds the data you want to manage (like numbers, strings, or objects) and functions to update that data.)
+
+store have 2 things
+slice folder and index.js in there
+
+while slice folder have 
+1.auth-slice.js
+2.
+
+
+-----
+
+Store: A container for your state and functions to update it.
+Hook: Use the useStore hook to access the state and functions in your components.
+Automatic Updates: Components automatically re-render when the state changes.
+
+
+Zustand can efficiently handle real-time updates, which is crucial for chat applications. You can easily update the state when new messages arrive or when users join or leave the chat, ensuring that all components reflect the latest data.
+
+In a chat application, you often need to share state across multiple components (e.g., message lists, user lists, and chat windows). Zustand allows you to manage global state seamlessly, making it easy to access and update shared data.
+
+
+-----
+
+import create  from "zustand";
+
+import {devtools,persist} from 'zustand/middleware'
+//middleware is not compoulsory but it helps in checking things in browser itself
+//persist ->store all local storage 
+
+//set is used for changing the state
+const courseStore=(set)=>({
+    courses:[],//this variable will be facing chnages or manipulations
+    //later it will carry actions->what will happen and how and why
+    addCourse:(course)=>{ //we are getting this thing in here
+        set((state)=>{{
+            courses:[course,...state.courses]
+        }})
+        //state =existing state of the variable 
+        //with course u want to do and then
+        //...course mans to spread the thing courses
+    },
+    removecourse:(courseId)=>{//might be getting this from backend
+        set((state)=>{{
+            courses:state.courses.filter((c)=>c.id!==courseId)
+        }})//we want to delete the course based on codeid provided if it exist or not
+    }
+})
+
+
+this is not part of our code and just to understand
+
+
+
+In essence, this entire line does the following:
+
+
+import { create } from "zustand";
+import {createAuthSlice} from "./slice/auth-slice"
+
+export const useAppStore= create()((...a)=>({
+    ...createAuthSlice(...a),
+}))
+
+Zustand's create() function is called to get a store creator.
+The store creator is immediately invoked with a function.
+This function calls createAuthSlice, passing it the necessary internal Zustand arguments.
+createAuthSlice returns an object containing authentication-related state and actions.
+The spread syntax merges these authentication properties into the main store definition.
+Finally, create() returns a custom hook named useAppStore. When you use this hook in your React components, it will give you access to the combined state and actions defined in your store.
+
+export const useAppStore = create(): This calls the create function from Zustand. The create() function itself doesn't immediately return the store; instead, it returns a store creator function.
+
+
+((...a) => ({ ...createAuthSlice(...a), })): This is an arrow function that is immediately passed as an argument to the store creator function returned by create(). Let's break this inner function down:
+
+(...a): This is a rest parameter. It collects all the arguments passed to this function into an array named a. Zustand's create function internally passes some arguments to this callback, which are essential for setting up the store (like set, get, and the store API).
+=> ({ ...createAuthSlice(...a), }): This is the body of the arrow function. It returns an object.
+createAuthSlice(...a): This calls the createAuthSlice function, passing along all the arguments it received (...a). We can infer that createAuthSlice is designed to return an object containing state and actions related to authentication.
+{ ...createAuthSlice(...a), }: The spread syntax (...) is used here. It takes all the properties (state variables and functions) returned by createAuthSlice(...a) and merges them into the object that this arrow function returns.
+
+
+
+Think of create from Zustand like a special tool that can build a container to hold this information.
+
+When you do export const useAppStore = create(), you're using that tool. But instead of immediately giving you the container, it gives you instructions on how to build the container. Let's call these instructions the "store builder."
+
+
+
+Imagine you want to keep track of information in your website (like whether someone is logged in or their name). Zustand helps you do this in a simple way.
+
+Think of create from Zustand like a special tool that can build a container to hold this information.
+
+When you do export const useAppStore = create(), you're using that tool. But instead of immediately giving you the container, it gives you instructions on how to build the container. Let's call these instructions the "store builder."
+
+Now, you give these "store builder" instructions a recipe: ((...a) => ({ ...createAuthSlice(...a), })). Let's break down this recipe:
+
+(...a): Imagine this as saying, "Okay, store builder, when you build this container, I might give you some secret ingredients (a).  and Just hold onto all of them for now.
+ they are things the container needs to work properly, like ways to change the information inside.
+
+=> ({ ...createAuthSlice(...a), }): This is the main part of the recipe. It says:
+"Go and find another recipe called createAuthSlice." This createAuthSlice recipe knows how to manage information 
+
+"(...a)" tells createAuthSlice, "Here are those secret ingredients I got earlier. You might need them to do your job."
+
+createAuthSlice will then give back a bag of things – this bag contains the actual information (like isLoggedIn: false) and ways to change that information (like a login button that can set isLoggedIn to true). <--this is just for example
+
+{ ...createAuthSlice(...a), } means, "Take everything from that bag and put it directly into our main information container." It's like emptying the authentication bag into the bigger app information container.
 
 
 
 
+--------------
+--------------
+The setUserInfo function, accessed via const {setUserInfo}=useAppStore();, is a key action within the Zustand store. It's highly probable that this function is defined in createAuthSlice and is responsible for updating the user information in the global store.
 
 
+things left->auth.jsx profile.jsx and store
+---------------
+---------------
 
-
-
+app.jsx main->private route and auth-route

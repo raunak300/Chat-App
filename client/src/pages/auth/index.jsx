@@ -1,14 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
 import Victory from "../../assets/victory.svg";
 import { Tabs, TabsList, TabsContent, TabsTrigger } from "@radix-ui/react-tabs";
 import { Button } from "../../components/ui/button";
 import { toast } from "sonner";
 import apiClient from "@/lib/api-client.js"
-import { SIGNUP_ROUTE } from "@/utils/constants";
-
+import { SIGNUP_ROUTE ,LOGIN_ROUTE } from "@/utils/constants";
+import { useNavigate } from "react-router-dom";
+import { useAppStore } from "@/store";
+import { useState,useEffect } from "react";
+// import {response} from 
 
 
 const Auth = () => {
+  const navigate=useNavigate();
+  const {setUserInfo}=useAppStore();
   const [email, setemail] = useState("");
   const [password, setpassword] = useState("");
   const [confirmPassword, setconfirmPassword] = useState("");
@@ -28,18 +33,70 @@ const Auth = () => {
     }
     if(password!==confirmPassword){
       toast.error("Password Should Be Same")
+      return false;
+    }
+    return true; 
+  }
+
+  const validateLogin=()=>{
+    if(!email.length){
+      toast.error("Email is required");
+      return false;
+    }
+    if(!password.length){
+      toast.error("Password is required");
+      return false;
     }
     return true; 
   }
 
 
   const handelLogin = async () => {
+    if(validateLogin()){
+      const response=await apiClient.post(LOGIN_ROUTE,{email,password},{withCredentials:true}); //going on backend and withcridentials to make token
+      console.log(response);
+    console.log(response.data.user);
+    if(response.data.user.id){
+      console.log("login hua")
+      if(response.data.user.profileSetup){//make sure that if only profile is set up it will go to chat page
+        console.log("yha dekha");
+        setUserInfo(response.data.user); // this will update userInfo in zustand store
+        // Zustand Update: Before navigating, setUserInfo(response.data.user) is called. This updates the user information in the global Zustand store, making it accessible to other parts of the application.
+        console.log("yha dekh 2 chat me ja rha hu")
+        navigate("/chat");
+      }
+      else {//also manged when the page is refreshed and the user is not logged in and the profile is not set up
+        console.log(response.data.user);
+        console.log("yha dkeh profile me ja rha hu - BEFORE setUserInfo");
+        setUserInfo(response.data.user);
+        console.log("yha dkeh profile me ja rha hu - AFTER setUserInfo");
+        console.log("yha dkeh profile me ja rha hu - BEFORE navigate('/profile')");
+        navigate("/profile");
+        console.log("yha dkeh profile me ja rha hu - AFTER navigate('/profile')");
+      }
+
+      
+    }
+    else{
+      console.log("nahi hua bhai")
+    }
+  }
+
 
   };
   const handelSignup = async () => {
     if(validateSignup()){
-      const response=await apiClient.post(SIGNUP_ROUTE,{email,password}); //going on backend
+      const response=await apiClient.post(SIGNUP_ROUTE,{email,password},{withCredentials:true}); //going on backend and withcridentials to make token
       console.log(response);
+      
+      //as i do signup i get jwt token now
+    
+    if(response.status===201){
+
+      setUserInfo(response.data.user);//this will update userinfo before navigating 
+      console.log(response.data.user);
+      navigate("/profile");
+    }
     }
   };
 
@@ -60,7 +117,7 @@ const Auth = () => {
             </p>
           </div>
           <div className="w-full">
-            <Tabs className="w-full">
+            <Tabs className="w-full" defaultValue="login">
               <TabsList className="bg-gray-100 rounded-lg w-full flex p-1">
                 <TabsTrigger
                   value="login"
@@ -79,14 +136,14 @@ const Auth = () => {
                 <TabsContent value="login" className="flex flex-col gap-4">
                   <input
                     type="email"
-                    placeholder="email"
+                    placeholder="Email"
                     value={email}
                     onChange={(e) => setemail(e.target.value)}
                     className="rounded-md p-3 border border-gray-300 focus:outline-none focus:border-purple-500"
                   />
                   <input
                     type="password"
-                    placeholder="password"
+                    placeholder="Password"
                     value={password}
                     onChange={(e) => setpassword(e.target.value)}
                     className="rounded-md p-3 border border-gray-300 focus:outline-none focus:border-purple-500"
@@ -101,21 +158,21 @@ const Auth = () => {
                 <TabsContent value="signup" className="flex flex-col gap-4">
                   <input
                     type="email"
-                    placeholder="email"
+                    placeholder="Email"
                     value={email}
                     onChange={(e) => setemail(e.target.value)}
                     className="rounded-md p-3 border border-gray-300 focus:outline-none focus:border-purple-500"
                   />
                   <input
                     type="password"
-                    placeholder="password"
+                    placeholder="Password"
                     value={password}
                     onChange={(e) => setpassword(e.target.value)}
                     className="rounded-md p-3 border border-gray-300 focus:outline-none focus:border-purple-500"
                   />
                   <input
                     type="password"
-                    placeholder="confirm password"
+                    placeholder="Confirm Password"
                     value={confirmPassword}
                     onChange={(e) => setconfirmPassword(e.target.value)}
                     className="rounded-md p-3 border border-gray-300 focus:outline-none focus:border-purple-500"
