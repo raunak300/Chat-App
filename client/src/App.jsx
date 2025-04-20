@@ -34,8 +34,7 @@ const AuthRoute=({children})=>{
 
 function App() {
   const {userInfo,setUserInfo}=useAppStore();
-  const [loading, setloading] = useState(true)
-  //
+  const [loading, setloading] = useState(true);
   // const location = useLocation();
   useEffect(()=>{
       const getUserData=async()=>{
@@ -81,11 +80,13 @@ if(loading){
           <PrivateRoute>
             <Profile/>
           </PrivateRoute>
+
         } />
         <Route path="/chat" element={
            <PrivateRoute>
            <Chat/>
          </PrivateRoute>
+
         } />
         <Route path="*" element={<Navigate to="/auth" />} />
 

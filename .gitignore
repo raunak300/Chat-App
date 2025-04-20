@@ -8,3 +8,5 @@ client/node_modules
 backend/.env
 client/.env
 
+uploads
+backend/uploads

@@ -12,7 +12,5 @@ export const verifyToken=(request,res,next)=>{
         request.userId=payload.userId;
         next();
     })
-
-
-
 }
+
