@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import authRoutes from './routes/AuthRoutes.js';
 import contactsRoutes from './routes/ContactsRoutes.js';
+import setupSocket from './socket.js';
 const app=express();
 
 dotenv.config();
@@ -30,14 +31,18 @@ app.use(express.json())
 app.use(express.urlencoded({extended:true,required:true}))
 
 
+
 app.use('/api/auth',authRoutes)
 //app.use(...): This is middleware in Express. It means that for any request that starts with the path /api/auth, your authRoutes router will be used to handle it.
 
 app.use('/api/contacts',contactsRoutes)
 
-app.listen(port,()=>{
+const server=app.listen(port,()=>{
     console.log(`listening on port ${port}`);
 })
+
+setupSocket(server) //after creation of server we need to do this
+
 mongoose
     .connect(databaseURL)
     .then(()=>{
